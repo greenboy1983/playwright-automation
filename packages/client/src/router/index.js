@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HelloWorld from '../components/HelloWorld.vue'
 import NewClient from '../views/NewClient.vue'
 import Kyc from '../views/Kyc.vue'
+import Reports from '../views/Reports.vue'
 
 const routes = [
   {
@@ -18,6 +19,11 @@ const routes = [
     path: '/kyc',
     name: 'kyc',
     component: Kyc
+  },
+  {
+    path: '/reports',
+    name: 'reports',
+    component: Reports
   }
 ]
 

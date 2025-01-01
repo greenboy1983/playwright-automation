@@ -1,5 +1,7 @@
 const { chromium } = require('playwright');
 const { createReportDir, saveReport } = require('../utils/reportUtils');
+const path = require('path');
+const fs = require('fs');
 
 async function createKyc(environment, clientInfo) {
   let browser = null;
@@ -26,10 +28,31 @@ async function createKyc(environment, clientInfo) {
       console.log(`Starting KYC creation in ${environment} environment`);
       console.log('Client information:', clientInfo);
 
-      await page.goto('https://example.com');
+      // Save request info
+      fs.writeFileSync(
+        path.join(reportDir, 'data.json'),
+        JSON.stringify({ environment, clientInfo }, null, 2)
+      );
 
-      // Mock KYC creation process
+      await page.goto('https://example.com');
+      await page.screenshot({ 
+        path: path.join(reportDir, '01-initial.png'),
+        fullPage: true
+      });
+
+      // Mock KYC process - first step
       await page.waitForTimeout(1000);
+      await page.screenshot({ 
+        path: path.join(reportDir, '02-process.png'),
+        fullPage: true
+      });
+
+      // Mock KYC process - additional step
+      await page.waitForTimeout(1000);
+      await page.screenshot({ 
+        path: path.join(reportDir, '03-process-additional.png'),
+        fullPage: true
+      });
 
       const result = {
         success: true,
@@ -37,13 +60,15 @@ async function createKyc(environment, clientInfo) {
         createdAt: new Date().toISOString()
       };
 
-      // Save report
-      await saveReport(page, reportDir, {
-        type: 'kyc',
-        environment,
-        request: clientInfo,
-        response: result,
-        timestamp: new Date().toISOString()
+      // Save final screenshot and result
+      fs.writeFileSync(
+        path.join(reportDir, 'result.json'),
+        JSON.stringify(result, null, 2)
+      );
+
+      await page.screenshot({ 
+        path: path.join(reportDir, '04-final.png'),
+        fullPage: true
       });
 
       return {
@@ -54,17 +79,18 @@ async function createKyc(environment, clientInfo) {
     } catch (error) {
       console.error('Automation script failed:', error);
       
-      // Save error report
-      await saveReport(page, reportDir, {
-        type: 'kyc',
-        environment,
-        request: clientInfo,
-        error: {
-          message: error.message,
-          stack: error.stack
-        },
-        timestamp: new Date().toISOString()
-      });
+      // Save error screenshot and info
+      if (page) {
+        await page.screenshot({ 
+          path: path.join(reportDir, 'error.png'),
+          fullPage: true
+        });
+      }
+
+      fs.writeFileSync(
+        path.join(reportDir, 'error.json'),
+        JSON.stringify({ error: error.message }, null, 2)
+      );
 
       throw error;
     }

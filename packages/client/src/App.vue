@@ -10,6 +10,7 @@
           <router-link to="/">Home</router-link>
           <router-link to="/new-client">Create Client</router-link>
           <router-link to="/kyc">KYC</router-link>
+          <router-link to="/reports">Reports</router-link>
         </nav>
       </div>
       <div class="main-content">
@@ -67,20 +68,19 @@ export default {
   gap: 10px;
 }
 
-.sidebar a {
+.sidebar nav a {
   padding: 10px;
   text-decoration: none;
-  color: #666;
+  color: #333;
   border-radius: 4px;
 }
 
-.sidebar a:hover {
-  background-color: #e0e0e0;
+.sidebar nav a:hover {
+  background: #f5f5f5;
 }
 
-.sidebar a.router-link-active {
-  background-color: #e0e0e0;
-  color: #333;
+.sidebar nav a.router-link-active {
+  background: #e0e0e0;
   font-weight: bold;
 }
 
