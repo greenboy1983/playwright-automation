@@ -1,0 +1,7 @@
+mkdir full-stack-project
+cd full-stack-project 
+mkdir -p packages/api
+cd packages/api 
+cd ../
+npm create vue@latest client
+cd client 
