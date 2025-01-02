@@ -1,21 +1,52 @@
 <template>
   <div class="app">
-    <header class="header">
-      <h1>uOpen Automation</h1>
-    </header>
-    <div class="content-wrapper">
-      <div class="sidebar">
-        <h2>Menu</h2>
-        <nav>
-          <router-link to="/">Home</router-link>
-          <router-link to="/new-client">Create Client</router-link>
-          <router-link to="/kyc">KYC</router-link>
-          <router-link to="/reports">Reports</router-link>
-        </nav>
-      </div>
-      <div class="main-content">
-        <router-view></router-view>
-      </div>
+    <div class="sidebar">
+      <div class="logo">uOpen</div>
+      <nav class="nav-menu">
+        <router-link to="/newclient" class="nav-item" active-class="active">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+          </span>
+          <span>New Client</span>
+        </router-link>
+        <router-link to="/createclient" class="nav-item" active-class="active">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </span>
+          <span>Create Client</span>
+        </router-link>
+        <router-link to="/kyc" class="nav-item" active-class="active">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </span>
+          <span>KYC</span>
+        </router-link>
+        <router-link to="/reports" class="nav-item" active-class="active">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <path d="M14 2v6h6"/>
+              <path d="M16 13H8"/>
+              <path d="M16 17H8"/>
+              <path d="M10 9H8"/>
+            </svg>
+          </span>
+          <span>Reports</span>
+        </router-link>
+      </nav>
+    </div>
+    <div class="main-content">
+      <router-view></router-view>
     </div>
   </div>
 </template>
@@ -27,71 +58,83 @@ export default {
 </script>
 
 <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
 .app {
   display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.header {
-  background-color: #2c3e50;
-  color: white;
-  padding: 1rem 2rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-.content-wrapper {
-  display: flex;
-  flex: 1;
+  height: 100vh;
 }
 
 .sidebar {
-  width: 200px;
-  background-color: #f5f5f5;
-  padding: 20px;
-  border-right: 1px solid #ddd;
+  width: 240px;
+  background: #1a1a1a;
+  color: white;
+  padding: 20px 0;
+  flex-shrink: 0;
 }
 
-.sidebar h2 {
-  margin-bottom: 20px;
-  color: #333;
+.logo {
+  padding: 0 24px;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  color: #4dabf7;
 }
 
-.sidebar nav {
+.nav-menu {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 4px;
 }
 
-.sidebar nav a {
-  padding: 10px;
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  color: #868e96;
   text-decoration: none;
-  color: #333;
-  border-radius: 4px;
+  transition: all 0.2s;
+  border-left: 3px solid transparent;
 }
 
-.sidebar nav a:hover {
-  background: #f5f5f5;
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity 0.2s;
 }
 
-.sidebar nav a.router-link-active {
-  background: #e0e0e0;
-  font-weight: bold;
+.nav-item:hover .nav-icon,
+.nav-item.active .nav-icon {
+  opacity: 1;
+}
+
+.nav-item.active .nav-icon {
+  color: #4dabf7;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.nav-item.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #4dabf7;
+  border-left-color: #4dabf7;
 }
 
 .main-content {
   flex: 1;
-  padding: 20px;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  overflow: auto;
+  background: #f8f9fa;
 }
 </style> 

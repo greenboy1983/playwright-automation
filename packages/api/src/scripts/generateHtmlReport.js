@@ -5,15 +5,18 @@ function generateHtmlReport(reports, { testType, environment, timestamp }) {
     <head>
       <title>uOpen Automation Execution Reports</title>
       <style>
-        body { 
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        html, body { 
           margin: 0;
           padding: 0;
+          height: 100%;
+          overflow: hidden;
+        }
+        body { 
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
           background: #f8f9fa;
           color: #333;
           display: flex;
           flex-direction: column;
-          height: 100vh;
         }
         .page-header {
           background: #fff;
@@ -22,7 +25,7 @@ function generateHtmlReport(reports, { testType, environment, timestamp }) {
           flex-shrink: 0;
         }
         .filters {
-          padding: 15px 20px;
+          padding: 12px 20px;
           display: flex;
           gap: 12px;
           border-bottom: 1px solid #e9ecef;
@@ -49,13 +52,14 @@ function generateHtmlReport(reports, { testType, environment, timestamp }) {
         .reports-container {
           flex: 1;
           overflow-y: auto;
-          padding: 20px;
+          padding: 16px 20px;
+          height: 0; /* 强制容器使用flex布局的高度 */
         }
         .report {
           background: white;
           border: 1px solid #e9ecef;
-          margin: 0 0 20px 0;
-          padding: 20px;
+          margin: 0 0 16px 0;
+          padding: 16px;
           border-radius: 8px;
           box-shadow: 0 2px 4px rgba(0,0,0,0.05);
           transition: transform 0.2s, box-shadow 0.2s;
@@ -92,6 +96,38 @@ function generateHtmlReport(reports, { testType, environment, timestamp }) {
           padding: 15px;
           margin: 15px 0;
         }
+        .details-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          user-select: none;
+        }
+        .details-header:hover {
+          opacity: 0.8;
+        }
+        .details-toggle {
+          width: 20px;
+          height: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
+          color: #495057;
+          transition: transform 0.2s;
+        }
+        .details-toggle.expanded {
+          transform: rotate(90deg);
+        }
+        .details-content {
+          display: none;
+          margin-top: 10px;
+          padding-top: 10px;
+          border-top: 1px solid #dee2e6;
+        }
+        .details-content.expanded {
+          display: block;
+        }
         .details pre {
           margin: 0;
           white-space: pre-wrap;
@@ -104,7 +140,6 @@ function generateHtmlReport(reports, { testType, environment, timestamp }) {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
           gap: 15px;
-          margin: 15px 0;
         }
         .screenshot-container {
           border: 1px solid #e9ecef;
@@ -132,13 +167,17 @@ function generateHtmlReport(reports, { testType, environment, timestamp }) {
         @media (max-width: 768px) {
           .filters {
             flex-direction: column;
-            padding: 12px 15px;
+            padding: 10px 15px;
           }
           .filters select {
             width: 100%;
           }
           .reports-container {
-            padding: 20px 15px;
+            padding: 12px 15px;
+          }
+          .report {
+            padding: 12px;
+            margin-bottom: 12px;
           }
         }
 
@@ -153,6 +192,7 @@ function generateHtmlReport(reports, { testType, environment, timestamp }) {
           background: rgba(0, 0, 0, 0.8);
           z-index: 1000;
           padding: 20px;
+          overflow: hidden;
         }
         .modal.active {
           display: flex;
@@ -161,19 +201,81 @@ function generateHtmlReport(reports, { testType, environment, timestamp }) {
         }
         .modal-content {
           position: relative;
-          max-width: 90vw;
-          max-height: 90vh;
+          max-width: calc(100vw - 120px);
+          max-height: calc(100vh - 120px);
           display: flex;
           flex-direction: column;
           align-items: center;
         }
         .modal-image-container {
           position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          overflow: hidden;
+        }
+        .modal-image-wrapper {
+          position: relative;
+          transition: transform 0.3s ease;
+          cursor: grab;
+        }
+        .modal-image-wrapper.dragging {
+          cursor: grabbing;
+          transition: none;
         }
         .modal-image {
           max-width: 100%;
-          max-height: 80vh;
+          max-height: calc(100vh - 200px);
           object-fit: contain;
+          cursor: zoom-in;
+          transition: transform 0.3s ease;
+          user-select: none;
+          -webkit-user-drag: none;
+        }
+        .modal-image.zoomed {
+          cursor: grab;
+        }
+        .modal-image.zoomed.dragging {
+          cursor: grabbing;
+        }
+        .modal-nav {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          background: rgba(255, 255, 255, 0.8);
+          border: none;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          font-size: 24px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background-color 0.2s;
+          z-index: 2;
+          color: #333;
+        }
+        .modal-nav:hover {
+          background: rgba(255, 255, 255, 0.95);
+        }
+        .modal-prev {
+          left: 20px;
+        }
+        .modal-next {
+          right: 20px;
+        }
+        .modal-close {
+          position: absolute;
+          top: -40px;
+          right: 0;
+          color: white;
+          font-size: 24px;
+          cursor: pointer;
+          background: none;
+          border: none;
+          padding: 10px;
         }
         .modal-title {
           color: white;
@@ -200,47 +302,104 @@ function generateHtmlReport(reports, { testType, environment, timestamp }) {
         .modal-counter {
           font-size: 14px;
         }
-        .modal-close {
+        .zoom-controls {
           position: absolute;
-          top: -40px;
-          right: 0;
-          color: white;
-          font-size: 24px;
-          cursor: pointer;
+          bottom: -35px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          gap: 10px;
+          background: rgba(0, 0, 0, 0.5);
+          padding: 5px 10px;
+          border-radius: 4px;
+        }
+        .zoom-button {
           background: none;
           border: none;
-          padding: 10px;
-        }
-        .modal-nav {
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          background: rgba(255, 255, 255, 0.8);
-          border: none;
-          border-radius: 50%;
-          width: 40px;
-          height: 40px;
-          font-size: 20px;
+          color: white;
           cursor: pointer;
+          font-size: 18px;
+          padding: 0 5px;
+        }
+        .zoom-button:hover {
+          opacity: 0.8;
+        }
+
+        .collapsible-section {
+          background: #f8f9fa;
+          border-radius: 6px;
+          padding: 15px;
+          margin: 15px 0;
+        }
+        .section-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          user-select: none;
+        }
+        .section-header:hover {
+          opacity: 0.8;
+        }
+        .section-toggle {
+          width: 20px;
+          height: 20px;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: background-color 0.2s;
+          font-size: 16px;
+          color: #495057;
+          transition: transform 0.2s;
         }
-        .modal-nav:hover {
-          background: rgba(255, 255, 255, 0.95);
+        .section-toggle.expanded {
+          transform: rotate(90deg);
         }
-        .modal-prev {
-          left: -60px;
+        .section-content {
+          display: none;
+          margin-top: 10px;
+          padding-top: 10px;
+          border-top: 1px solid #dee2e6;
         }
-        .modal-next {
-          right: -60px;
+        .section-content.expanded {
+          display: block;
         }
-        .screenshot-container {
-          cursor: pointer;
+
+        .report-title {
+          font-size: 18px;
+          font-weight: 500;
+          color: #1a1a1a;
+          margin: 0 0 15px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid #e9ecef;
         }
-        .screenshot-container:hover {
-          opacity: 0.9;
+        .report-title .timestamp {
+          color: #495057;
+          font-weight: normal;
+        }
+        .report h3 {
+          font-size: 14px;
+          margin: 0 0 15px 0;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-weight: normal;
+        }
+        .tag {
+          display: inline-block;
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 500;
+          background: #e9ecef;
+          color: #495057;
+        }
+        .tag.type {
+          background: #e3f2fd;
+          color: #1976d2;
+        }
+        .tag.env {
+          background: #e8f5e9;
+          color: #2e7d32;
         }
       </style>
     </head>
@@ -274,26 +433,44 @@ function generateHtmlReport(reports, { testType, environment, timestamp }) {
       <div class="reports-container">
         ${reports.map(report => `
           <div class="report">
-            <h3>
-              ${report.testType} 
-              <span class="environment">${report.environment}</span>
-              <span class="timestamp">${report.timestamp}</span>
-            </h3>
-            <div class="details">
-              <pre>${JSON.stringify(report.data, null, 2)}</pre>
+            <div class="report-title">
+              ${report.timestamp}
             </div>
+            <h3>
+              <span class="tag type">${report.testType}</span>
+              <span class="tag env">${report.environment}</span>
+            </h3>
+            
+            <div class="collapsible-section">
+              <div class="section-header" onclick="toggleSection(this)">
+                <div class="section-toggle">›</div>
+                <span>Client Information</span>
+              </div>
+              <div class="section-content">
+                <pre>${JSON.stringify(report.data, null, 2)}</pre>
+              </div>
+            </div>
+
             ${report.screenshots.length > 0 ? `
-              <div class="screenshots" data-report-id="${report.timestamp}">
-                ${report.screenshots.map((screenshot, index) => `
-                  <div class="screenshot-container" 
-                       data-index="${index}"
-                       onclick="openModal('${report.timestamp}', ${index})">
-                    <div class="screenshot-title">${screenshot.name}</div>
-                    <img class="screenshot" 
-                         src="/reports/${report.relativePath}/${screenshot.name}" 
-                         alt="${screenshot.name}">
+              <div class="collapsible-section">
+                <div class="section-header" onclick="toggleSection(this)">
+                  <div class="section-toggle">›</div>
+                  <span>Screenshots (${report.screenshots.length})</span>
+                </div>
+                <div class="section-content">
+                  <div class="screenshots" data-report-id="${report.timestamp}">
+                    ${report.screenshots.map((screenshot, index) => `
+                      <div class="screenshot-container" 
+                           data-index="${index}"
+                           onclick="openModal('${report.timestamp}', ${index})">
+                        <div class="screenshot-title">${screenshot.name}</div>
+                        <img class="screenshot" 
+                             src="/reports/${report.relativePath}/${screenshot.name}" 
+                             alt="${screenshot.name}">
+                      </div>
+                    `).join('')}
                   </div>
-                `).join('')}
+                </div>
               </div>
             ` : ''}
           </div>
@@ -307,11 +484,17 @@ function generateHtmlReport(reports, { testType, environment, timestamp }) {
           <div class="modal-title" id="modalTitle"></div>
           <div class="modal-image-container">
             <button class="modal-nav modal-prev" onclick="changeImage(-1)">‹</button>
-            <img class="modal-image" id="modalImage" src="" alt="Preview">
+            <div class="modal-image-wrapper">
+              <img class="modal-image" id="modalImage" src="" alt="Preview">
+            </div>
             <button class="modal-nav modal-next" onclick="changeImage(1)">›</button>
           </div>
           <div class="modal-footer">
             <div class="modal-counter" id="imageCounter"></div>
+          </div>
+          <div class="zoom-controls">
+            <button class="zoom-button" onclick="zoomImage(-1)">−</button>
+            <button class="zoom-button" onclick="zoomImage(1)">+</button>
           </div>
         </div>
       </div>
@@ -338,17 +521,109 @@ function generateHtmlReport(reports, { testType, environment, timestamp }) {
         let currentImageIndex = 0;
         let currentImages = [];
         let currentImageNames = [];
+        let currentZoomLevel = 1;
+        let isDragging = false;
+        let hasMoved = false;
+        let startX = 0;
+        let startY = 0;
+        let translateX = 0;
+        let translateY = 0;
+        let lastTranslateX = 0;
+        let lastTranslateY = 0;
+
+        function startDrag(e) {
+          const modalImage = document.getElementById('modalImage');
+          if (!modalImage.classList.contains('zoomed')) return;
+
+          isDragging = true;
+          hasMoved = false;
+          startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+          startY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
+          
+          modalImage.classList.add('dragging');
+
+          // Store current translation
+          const transform = modalImage.style.transform;
+          const match = transform.match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/);
+          if (match) {
+            lastTranslateX = parseFloat(match[1]);
+            lastTranslateY = parseFloat(match[2]);
+          }
+        }
+
+        function doDrag(e) {
+          if (!isDragging) return;
+          e.preventDefault();
+
+          const modalImage = document.getElementById('modalImage');
+          const currentX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+          const currentY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
+          
+          const moveX = Math.abs(currentX - startX);
+          const moveY = Math.abs(currentY - startY);
+          if (moveX > 5 || moveY > 5) {
+            hasMoved = true;
+          }
+
+          translateX = lastTranslateX + (currentX - startX);
+          translateY = lastTranslateY + (currentY - startY);
+
+          // Calculate bounds
+          const rect = modalImage.getBoundingClientRect();
+          const scaledWidth = rect.width * currentZoomLevel;
+          const scaledHeight = rect.height * currentZoomLevel;
+          const maxX = (scaledWidth - rect.width) / 2;
+          const maxY = (scaledHeight - rect.height) / 2;
+
+          // Limit translation within bounds
+          translateX = Math.max(-maxX, Math.min(maxX, translateX));
+          translateY = Math.max(-maxY, Math.min(maxY, translateY));
+
+          modalImage.style.transform = 
+            \`scale(\${currentZoomLevel}) translate(\${translateX}px, \${translateY}px)\`;
+        }
+
+        function endDrag(e) {
+          if (!isDragging) return;
+          
+          isDragging = false;
+          const modalImage = document.getElementById('modalImage');
+          modalImage.classList.remove('dragging');
+          
+          lastTranslateX = translateX;
+          lastTranslateY = translateY;
+        }
+
+        function resetImagePosition() {
+          translateX = 0;
+          translateY = 0;
+          lastTranslateX = 0;
+          lastTranslateY = 0;
+          const modalImage = document.getElementById('modalImage');
+          modalImage.style.transform = \`scale(\${currentZoomLevel})\`;
+        }
+
+        function zoomImage(delta) {
+          const modalImage = document.getElementById('modalImage');
+          const newZoom = Math.max(1, Math.min(3, currentZoomLevel + delta * 0.5));
+          
+          if (newZoom !== currentZoomLevel) {
+            currentZoomLevel = newZoom;
+            resetImagePosition();
+            modalImage.classList.toggle('zoomed', currentZoomLevel > 1);
+          }
+        }
 
         function openModal(reportId, index) {
           const modal = document.getElementById('imageModal');
-          const modalImage = document.getElementById('modalImage');
-          const screenshots = document.querySelector(\`.screenshots[data-report-id="\${reportId}"]\`);
-          
           currentReportId = reportId;
           currentImageIndex = index;
+          currentZoomLevel = 1;
+          resetImagePosition();
           
-          // Get both image sources and names
+          const screenshots = document.querySelector(\`.screenshots[data-report-id="\${reportId}"]\`);
           const screenshotContainers = screenshots.querySelectorAll('.screenshot-container');
+          
           currentImages = Array.from(screenshotContainers).map(container => 
             container.querySelector('.screenshot').src
           );
@@ -358,11 +633,37 @@ function generateHtmlReport(reports, { testType, environment, timestamp }) {
           
           updateModalImage();
           modal.classList.add('active');
+
+          // Add drag event listeners
+          const modalImage = document.getElementById('modalImage');
+          modalImage.removeEventListener('click', handleImageClick);
+          modalImage.addEventListener('click', handleImageClick);
+          
+          modalImage.addEventListener('mousedown', startDrag);
+          modalImage.addEventListener('touchstart', startDrag);
+          
+          document.addEventListener('mousemove', doDrag);
+          document.addEventListener('touchmove', doDrag, { passive: false });
+          
+          document.addEventListener('mouseup', endDrag);
+          document.addEventListener('touchend', endDrag);
         }
 
         function closeModal() {
           const modal = document.getElementById('imageModal');
           modal.classList.remove('active');
+          
+          // Remove all event listeners
+          const modalImage = document.getElementById('modalImage');
+          modalImage.removeEventListener('click', handleImageClick);
+          modalImage.removeEventListener('mousedown', startDrag);
+          modalImage.removeEventListener('touchstart', startDrag);
+          
+          document.removeEventListener('mousemove', doDrag);
+          document.removeEventListener('touchmove', doDrag);
+          
+          document.removeEventListener('mouseup', endDrag);
+          document.removeEventListener('touchend', endDrag);
         }
 
         function updateModalImage() {
@@ -370,27 +671,68 @@ function generateHtmlReport(reports, { testType, environment, timestamp }) {
           const modalTitle = document.getElementById('modalTitle');
           const counter = document.getElementById('imageCounter');
           
+          modalImage.style.transform = \`scale(\${currentZoomLevel})\`;
           modalImage.src = currentImages[currentImageIndex];
           modalTitle.textContent = currentImageNames[currentImageIndex];
           counter.textContent = \`\${currentImageIndex + 1} / \${currentImages.length}\`;
           
-          // Update navigation buttons visibility
-          document.querySelector('.modal-prev').style.display = currentImageIndex > 0 ? 'flex' : 'none';
+          document.querySelector('.modal-prev').style.display = 
+            currentImageIndex > 0 ? 'flex' : 'none';
           document.querySelector('.modal-next').style.display = 
             currentImageIndex < currentImages.length - 1 ? 'flex' : 'none';
         }
 
         function changeImage(delta) {
+          const oldIndex = currentImageIndex;
           currentImageIndex = Math.max(0, Math.min(currentImages.length - 1, currentImageIndex + delta));
-          updateModalImage();
+          currentZoomLevel = 1;
+          
+          const wrapper = document.querySelector('.modal-image-wrapper');
+          wrapper.style.transform = \`translateX(\${-100 * (oldIndex - currentImageIndex)}%)\`;
+          
+          setTimeout(() => {
+            wrapper.style.transition = 'none';
+            wrapper.style.transform = '';
+            updateModalImage();
+            setTimeout(() => {
+              wrapper.style.transition = 'transform 0.3s ease';
+            }, 50);
+          }, 300);
         }
 
-        // Close modal on escape key
+        // Handle image click for zoom toggle
+        function handleImageClick(e) {
+          if (!hasMoved) {
+            zoomImage(this.classList.contains('zoomed') ? -10 : 1);
+          }
+        }
+
+        // Handle keyboard events
         document.addEventListener('keydown', function(e) {
-          if (e.key === 'Escape') closeModal();
-          if (e.key === 'ArrowLeft') changeImage(-1);
-          if (e.key === 'ArrowRight') changeImage(1);
+          if (document.querySelector('.modal.active')) {
+            if (e.key === 'Escape') closeModal();
+            if (e.key === 'ArrowLeft') changeImage(-1);
+            if (e.key === 'ArrowRight') changeImage(1);
+            if (e.key === '+' || e.key === '=') zoomImage(1);
+            if (e.key === '-') zoomImage(-1);
+          }
         });
+
+        // Handle mouse wheel for zoom
+        document.querySelector('.modal-image-container').addEventListener('wheel', function(e) {
+          if (e.ctrlKey) {
+            e.preventDefault();
+            zoomImage(e.deltaY > 0 ? -1 : 1);
+          }
+        });
+
+        function toggleSection(header) {
+          const content = header.nextElementSibling;
+          const toggle = header.querySelector('.section-toggle');
+          
+          content.classList.toggle('expanded');
+          toggle.classList.toggle('expanded');
+        }
       </script>
     </body>
     </html>
