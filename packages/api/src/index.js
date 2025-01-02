@@ -5,7 +5,7 @@ const createNewClient = require('./scripts/createClient');
 const createKyc = require('./scripts/createKyc');
 const generateHtmlReport = require('./scripts/generateHtmlReport');
 const { getAllReports } = require('./utils/reportUtils');
-const presetTemplates = require('./data/newClientPresetTemplates.json');
+const newClientPresetTemplates = require('./data/newClientPresetTemplates.json');
 const kycPresetTemplates = require('./data/kycPresetTemplates.json');
 
 const app = express();
@@ -162,11 +162,11 @@ app.get('/api/reports/html', (req, res) => {
 });
 
 // 添加新的路由处理预设模板
-app.get('/uopen-automation/presets', (req, res) => {
+app.get('/uopen-automation/newclient-presets', (req, res) => {
   try {
     res.json({
       status: 'success',
-      data: presetTemplates
+      data: newClientPresetTemplates
     });
   } catch (error) {
     res.status(500).json({

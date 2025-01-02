@@ -295,7 +295,7 @@ export default {
     },
     async fetchPresets() {
       try {
-        const response = await fetch('http://localhost:3000/uopen-automation/presets');
+        const response = await fetch('http://localhost:3000/uopen-automation/newclient-presets');
         const result = await response.json();
         if (result.status === 'success') {
           this.presets = result.data.presets;
