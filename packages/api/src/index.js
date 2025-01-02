@@ -14,10 +14,12 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// API endpoint for health check
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello, World!' });
 });
 
+// Handle new client creation
 app.post('/uopen-automation/newclient', async (req, res) => {
   const { environment, clientInfo } = req.body;
 
@@ -76,6 +78,7 @@ app.post('/uopen-automation/newclient', async (req, res) => {
   }
 });
 
+// Handle KYC process
 app.post('/uopen-automation/kyc', async (req, res) => {
   const { environment, clientInfo } = req.body;
 
@@ -161,7 +164,7 @@ app.get('/api/reports/html', (req, res) => {
   res.send(html);
 });
 
-// 添加新的路由处理预设模板
+// Handle new client preset templates
 app.get('/uopen-automation/newclient-presets', (req, res) => {
   try {
     res.json({
@@ -176,7 +179,7 @@ app.get('/uopen-automation/newclient-presets', (req, res) => {
   }
 });
 
-// 添加KYC预设模板的路由
+// Handle KYC preset templates
 app.get('/uopen-automation/kyc-presets', (req, res) => {
   try {
     res.json({
@@ -192,5 +195,5 @@ app.get('/uopen-automation/kyc-presets', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`API server running at http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 }); 

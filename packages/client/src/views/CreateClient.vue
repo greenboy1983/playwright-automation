@@ -3,7 +3,7 @@
     <h2 class="page-title">Create New Client</h2>
     
     <div class="content-layout">
-      <!-- Left Column: Form -->
+      <!-- Form Section -->
       <div class="form-container" :style="{ flex: requestFlex }">
         <div class="form-header">Request</div>
         
@@ -78,14 +78,14 @@
         </div>
       </div>
 
-      <!-- Resizer -->
+      <!-- Resize Handler -->
       <div 
         class="resizer" 
         @mousedown="startResize"
         @dblclick="resetSize"
       ></div>
 
-      <!-- Right Column: Results -->
+      <!-- Response Section -->
       <div class="result-container" :style="{ flex: responseFlex }">
         <div class="result-header-text">Response</div>
         <div v-if="result" class="result-section" :class="{ error: result.status === 'error' }">
@@ -175,7 +175,7 @@ export default {
     }
   },
   async created() {
-    // 组件创建时获取预设数据
+    // Fetch preset data when component is created
     await this.fetchPresets();
   },
   methods: {
@@ -248,7 +248,7 @@ export default {
       document.addEventListener('mousemove', this.handleResize);
       document.addEventListener('mouseup', this.stopResize);
       
-      // 添加禁止选择文本的类
+      // Add class to prevent text selection
       document.body.classList.add('resizing');
     },
     
@@ -259,10 +259,10 @@ export default {
       const container = e.target.closest('.content-layout');
       const containerWidth = container.offsetWidth;
       
-      // 计算flex值的变化
+      // Calculate flex value change
       const flexDelta = (delta / containerWidth) * (this.initialRequestFlex + this.initialResponseFlex);
       
-      // 更新flex值，并确保不会太小
+      // Update flex values with minimum limits
       this.requestFlex = Math.max(0.2, this.initialRequestFlex + flexDelta);
       this.responseFlex = Math.max(0.2, this.initialResponseFlex - flexDelta);
     },
@@ -286,7 +286,7 @@ export default {
       
       const preset = this.presets.find(p => p.id === this.selectedPreset);
       if (preset) {
-        // 更新所有表单数据
+        // Update all form data
         for (const key in preset.data) {
           this.formData[key] = JSON.stringify(preset.data[key], null, 2);
         }
@@ -309,6 +309,7 @@ export default {
 </script>
 
 <style scoped>
+/* Base Layout */
 .create-client-page {
   padding: 20px;
   height: 100%;
@@ -661,7 +662,7 @@ label {
   background: #228be6;
 }
 
-/* 添加到全局样式 */
+/* Global Styles */
 :global(.resizing) {
   cursor: col-resize;
   user-select: none;
