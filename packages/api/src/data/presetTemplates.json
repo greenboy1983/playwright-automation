@@ -1,0 +1,102 @@
+{
+  "presets": [
+    {
+      "id": "basic",
+      "name": "Basic Client",
+      "data": {
+        "loginInformation": {
+          "username": "basicuser",
+          "password": "Password123",
+          "email": "basic@example.com"
+        },
+        "household": {
+          "name": "Basic Household",
+          "address": {
+            "street": "123 Basic St",
+            "city": "Basic City",
+            "state": "BS",
+            "zipCode": "12345"
+          },
+          "phone": "123-456-7890"
+        },
+        "participants": [
+          {
+            "id": "P001",
+            "firstName": "John",
+            "lastName": "Basic",
+            "dateOfBirth": "1990-01-01",
+            "ssn": "123-45-6789",
+            "role": "PRIMARY"
+          }
+        ],
+        "accounts": [
+          {
+            "accountNumber": "ACC001",
+            "type": "SAVINGS",
+            "balance": 1000.00,
+            "status": "ACTIVE"
+          }
+        ],
+        "clientGroups": [
+          {
+            "groupId": "G001",
+            "name": "Basic Group",
+            "type": "STANDARD"
+          }
+        ]
+      }
+    },
+    {
+      "id": "premium",
+      "name": "Premium Client",
+      "data": {
+        "loginInformation": {
+          "username": "premiumuser",
+          "password": "Premium123",
+          "email": "premium@example.com"
+        },
+        "household": {
+          "name": "Premium Household",
+          "address": {
+            "street": "456 Premium Ave",
+            "city": "Premium City",
+            "state": "PM",
+            "zipCode": "67890"
+          },
+          "phone": "987-654-3210"
+        },
+        "participants": [
+          {
+            "id": "P002",
+            "firstName": "Jane",
+            "lastName": "Premium",
+            "dateOfBirth": "1985-06-15",
+            "ssn": "987-65-4321",
+            "role": "PRIMARY"
+          }
+        ],
+        "accounts": [
+          {
+            "accountNumber": "ACC002",
+            "type": "CHECKING",
+            "balance": 50000.00,
+            "status": "ACTIVE"
+          },
+          {
+            "accountNumber": "ACC003",
+            "type": "INVESTMENT",
+            "balance": 100000.00,
+            "status": "ACTIVE"
+          }
+        ],
+        "clientGroups": [
+          {
+            "groupId": "G002",
+            "name": "Premium Group",
+            "type": "PREMIUM"
+          }
+        ]
+      }
+    }
+  ]
+} 

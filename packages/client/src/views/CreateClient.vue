@@ -4,16 +4,29 @@
     
     <div class="content-layout">
       <!-- Left Column: Form -->
-      <div class="form-container">
+      <div class="form-container" :style="{ flex: requestFlex }">
         <div class="form-header">Request</div>
         
         <div class="form-group">
-          <label>Environment</label>
-          <select v-model="environment" class="form-control">
-            <option value="DEV">DEV</option>
-            <option value="SIT">SIT</option>
-            <option value="UAT">UAT</option>
-          </select>
+          <div class="form-row">
+            <div class="form-col">
+              <label>Environment</label>
+              <select v-model="environment" class="form-control">
+                <option value="DEV">DEV</option>
+                <option value="SIT">SIT</option>
+                <option value="UAT">UAT</option>
+              </select>
+            </div>
+            <div class="form-col">
+              <label>Preset Templates</label>
+              <select v-model="selectedPreset" class="form-control" @change="loadPreset">
+                <option value="">Select a template...</option>
+                <option v-for="preset in presets" :key="preset.id" :value="preset.id">
+                  {{ preset.name }}
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <div class="json-sections">
@@ -65,8 +78,15 @@
         </div>
       </div>
 
+      <!-- Resizer -->
+      <div 
+        class="resizer" 
+        @mousedown="startResize"
+        @dblclick="resetSize"
+      ></div>
+
       <!-- Right Column: Results -->
-      <div class="result-container">
+      <div class="result-container" :style="{ flex: responseFlex }">
         <div class="result-header-text">Response</div>
         <div v-if="result" class="result-section" :class="{ error: result.status === 'error' }">
           <div class="result-header">
@@ -143,8 +163,20 @@ export default {
       ],
       isSubmitting: false,
       result: null,
-      jsonError: null
+      jsonError: null,
+      requestFlex: 1,
+      responseFlex: 1,
+      isResizing: false,
+      initialX: 0,
+      initialRequestFlex: 0,
+      initialResponseFlex: 0,
+      selectedPreset: '',
+      presets: [],
     }
+  },
+  async created() {
+    // 组件创建时获取预设数据
+    await this.fetchPresets();
   },
   methods: {
     formatSection(section) {
@@ -206,6 +238,71 @@ export default {
       } finally {
         this.isSubmitting = false;
       }
+    },
+    startResize(e) {
+      this.isResizing = true;
+      this.initialX = e.clientX;
+      this.initialRequestFlex = this.requestFlex;
+      this.initialResponseFlex = this.responseFlex;
+      
+      document.addEventListener('mousemove', this.handleResize);
+      document.addEventListener('mouseup', this.stopResize);
+      
+      // 添加禁止选择文本的类
+      document.body.classList.add('resizing');
+    },
+    
+    handleResize(e) {
+      if (!this.isResizing) return;
+      
+      const delta = e.clientX - this.initialX;
+      const container = e.target.closest('.content-layout');
+      const containerWidth = container.offsetWidth;
+      
+      // 计算flex值的变化
+      const flexDelta = (delta / containerWidth) * (this.initialRequestFlex + this.initialResponseFlex);
+      
+      // 更新flex值，并确保不会太小
+      this.requestFlex = Math.max(0.2, this.initialRequestFlex + flexDelta);
+      this.responseFlex = Math.max(0.2, this.initialResponseFlex - flexDelta);
+    },
+    
+    stopResize() {
+      this.isResizing = false;
+      document.removeEventListener('mousemove', this.handleResize);
+      document.removeEventListener('mouseup', this.stopResize);
+      document.body.classList.remove('resizing');
+    },
+    
+    resetSize() {
+      this.requestFlex = 1;
+      this.responseFlex = 1;
+    },
+    
+    loadPreset() {
+      if (!this.selectedPreset) {
+        return;
+      }
+      
+      const preset = this.presets.find(p => p.id === this.selectedPreset);
+      if (preset) {
+        // 更新所有表单数据
+        for (const key in preset.data) {
+          this.formData[key] = JSON.stringify(preset.data[key], null, 2);
+        }
+        this.jsonError = null;
+      }
+    },
+    async fetchPresets() {
+      try {
+        const response = await fetch('http://localhost:3000/uopen-automation/presets');
+        const result = await response.json();
+        if (result.status === 'success') {
+          this.presets = result.data.presets;
+        }
+      } catch (error) {
+        console.error('Failed to fetch presets:', error);
+      }
     }
   }
 }
@@ -233,21 +330,20 @@ export default {
 
 .content-layout {
   display: flex;
-  gap: 20px;
   flex: 1;
   min-height: 0;
   overflow: hidden;
 }
 
 .form-container, .result-container {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
   min-height: 0;
+  transition: flex 0.1s ease;
 }
 
 .form-header, .result-header-text {
@@ -467,7 +563,7 @@ label {
   display: flex;
   border-bottom: 1px solid #e9ecef;
   background: #f8f9fa;
-  padding: 0 20px;
+  padding: 0;
   flex-shrink: 0;
 }
 
@@ -479,6 +575,7 @@ label {
   border-bottom: 2px solid transparent;
   font-size: 14px;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .tab-header:hover {
@@ -496,6 +593,8 @@ label {
   position: relative;
   min-height: 0;
   padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .tab-content {
@@ -504,6 +603,7 @@ label {
   flex-direction: column;
   position: relative;
   padding: 0;
+  width: 100%;
 }
 
 .code-editor {
@@ -518,6 +618,7 @@ label {
   width: 100%;
   font-size: 13px;
   line-height: 1.5;
+  box-sizing: border-box;
 }
 
 .format-btn {
@@ -534,5 +635,49 @@ label {
   font-weight: normal;
 }
 
-/* Add this to script section */
+.resizer {
+  width: 6px;
+  margin: 0 10px;
+  background: transparent;
+  position: relative;
+  cursor: col-resize;
+  transition: background-color 0.2s;
+}
+
+.resizer::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 30px;
+  background: #dee2e6;
+  border-radius: 1px;
+  transition: background-color 0.2s;
+}
+
+.resizer:hover::after {
+  background: #228be6;
+}
+
+/* 添加到全局样式 */
+:global(.resizing) {
+  cursor: col-resize;
+  user-select: none;
+}
+
+:global(.resizing) .resizer::after {
+  background: #228be6;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.form-col {
+  flex: 1;
+}
 </style> 

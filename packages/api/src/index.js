@@ -5,6 +5,7 @@ const createNewClient = require('./scripts/createClient');
 const createKyc = require('./scripts/createKyc');
 const generateHtmlReport = require('./scripts/generateHtmlReport');
 const { getAllReports } = require('./utils/reportUtils');
+const presetTemplates = require('./data/presetTemplates.json');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -157,6 +158,21 @@ app.get('/api/reports/html', (req, res) => {
 
   const html = generateHtmlReport(reports, { testType, environment, timestamp });
   res.send(html);
+});
+
+// 添加新的路由处理预设模板
+app.get('/uopen-automation/presets', (req, res) => {
+  try {
+    res.json({
+      status: 'success',
+      data: presetTemplates
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: error.message
+    });
+  }
 });
 
 app.listen(port, () => {
