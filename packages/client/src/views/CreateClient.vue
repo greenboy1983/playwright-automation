@@ -3,7 +3,7 @@
     <h2 class="page-title">Create New Client</h2>
     
     <div class="content-layout">
-      <!-- Form Section -->
+      <!-- Left Column: Form -->
       <div class="form-container" :style="{ flex: requestFlex }">
         <div class="form-header">Request</div>
         
@@ -78,14 +78,14 @@
         </div>
       </div>
 
-      <!-- Resize Handler -->
+      <!-- Resizer -->
       <div 
         class="resizer" 
         @mousedown="startResize"
         @dblclick="resetSize"
       ></div>
 
-      <!-- Response Section -->
+      <!-- Right Column: Results -->
       <div class="result-container" :style="{ flex: responseFlex }">
         <div class="result-header-text">Response</div>
         <div v-if="result" class="result-section" :class="{ error: result.status === 'error' }">
@@ -175,7 +175,7 @@ export default {
     }
   },
   async created() {
-    // Fetch preset data when component is created
+    // 组件创建时获取预设数据
     await this.fetchPresets();
   },
   methods: {
@@ -218,7 +218,7 @@ export default {
           }
         }
 
-        const response = await fetch('http://localhost:3000/uopen-automation/newclient', {
+        const response = await fetch('/uopen-automation/newclient', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -248,7 +248,7 @@ export default {
       document.addEventListener('mousemove', this.handleResize);
       document.addEventListener('mouseup', this.stopResize);
       
-      // Add class to prevent text selection
+      // 添加禁止选择文本的类
       document.body.classList.add('resizing');
     },
     
@@ -259,10 +259,10 @@ export default {
       const container = e.target.closest('.content-layout');
       const containerWidth = container.offsetWidth;
       
-      // Calculate flex value change
+      // 计算flex值的变化
       const flexDelta = (delta / containerWidth) * (this.initialRequestFlex + this.initialResponseFlex);
       
-      // Update flex values with minimum limits
+      // 更新flex值，并确保不会太小
       this.requestFlex = Math.max(0.2, this.initialRequestFlex + flexDelta);
       this.responseFlex = Math.max(0.2, this.initialResponseFlex - flexDelta);
     },
@@ -286,7 +286,7 @@ export default {
       
       const preset = this.presets.find(p => p.id === this.selectedPreset);
       if (preset) {
-        // Update all form data
+        // 更新所有表单数据
         for (const key in preset.data) {
           this.formData[key] = JSON.stringify(preset.data[key], null, 2);
         }
@@ -295,7 +295,7 @@ export default {
     },
     async fetchPresets() {
       try {
-        const response = await fetch('http://localhost:3000/uopen-automation/newclient-presets');
+        const response = await fetch('/uopen-automation/newclient-presets');
         const result = await response.json();
         if (result.status === 'success') {
           this.presets = result.data.presets;
@@ -309,7 +309,6 @@ export default {
 </script>
 
 <style scoped>
-/* Base Layout */
 .create-client-page {
   padding: 20px;
   height: 100%;
@@ -662,7 +661,7 @@ label {
   background: #228be6;
 }
 
-/* Global Styles */
+/* 添加到全局样式 */
 :global(.resizing) {
   cursor: col-resize;
   user-select: none;

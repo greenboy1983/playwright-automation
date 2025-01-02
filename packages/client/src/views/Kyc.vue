@@ -198,7 +198,7 @@ export default {
           }
         }
 
-        const response = await fetch('http://localhost:3000/uopen-automation/kyc', {
+        const response = await fetch('/uopen-automation/kyc', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -253,7 +253,7 @@ export default {
     },
     async fetchPresets() {
       try {
-        const response = await fetch('http://localhost:3000/uopen-automation/kyc-presets');
+        const response = await fetch('/uopen-automation/kyc-presets');
         const result = await response.json();
         if (result.status === 'success') {
           this.presets = result.data.presets;

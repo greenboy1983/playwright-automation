@@ -3,7 +3,7 @@
     <h2 class="page-title">Execution Reports</h2>
     <div class="iframe-container">
       <iframe 
-        src="http://localhost:3000/api/reports/html" 
+        src="/api/reports/html" 
         frameborder="0"
         width="100%"
         height="100%"
