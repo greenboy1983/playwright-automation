@@ -5,7 +5,8 @@ const createNewClient = require('./scripts/createClient');
 const createKyc = require('./scripts/createKyc');
 const generateHtmlReport = require('./scripts/generateHtmlReport');
 const { getAllReports } = require('./utils/reportUtils');
-const presetTemplates = require('./data/presetTemplates.json');
+const presetTemplates = require('./data/newClientPresetTemplates.json');
+const kycPresetTemplates = require('./data/kycPresetTemplates.json');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -166,6 +167,21 @@ app.get('/uopen-automation/presets', (req, res) => {
     res.json({
       status: 'success',
       data: presetTemplates
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: error.message
+    });
+  }
+});
+
+// 添加KYC预设模板的路由
+app.get('/uopen-automation/kyc-presets', (req, res) => {
+  try {
+    res.json({
+      status: 'success',
+      data: kycPresetTemplates
     });
   } catch (error) {
     res.status(500).json({

@@ -1,6 +1,6 @@
 <template>
   <div class="reports-page">
-    <h2>Execution Reports</h2>
+    <h2 class="page-title">Execution Reports</h2>
     <div class="iframe-container">
       <iframe 
         src="http://localhost:3000/api/reports/html" 
@@ -23,17 +23,8 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 0;
-}
-
-h2 {
-  margin: 0;
-  padding: 8px 20px;
-  flex-shrink: 0;
-  font-size: 16px;
-  line-height: 24px;
-  border-bottom: 1px solid #e9ecef;
-  background: #fff;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .iframe-container {
@@ -41,6 +32,9 @@ h2 {
   min-height: 0;
   border: none;
   overflow: hidden;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 iframe {
@@ -48,5 +42,14 @@ iframe {
   height: 100%;
   width: 100%;
   display: block;
+}
+
+.page-title {
+  margin: 0 0 20px 0;
+  color: #1a1a1a;
+  font-size: 24px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e9ecef;
+  flex-shrink: 0;
 }
 </style> 

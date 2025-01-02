@@ -1,16 +1,8 @@
 <template>
   <div class="app">
     <div class="sidebar">
-      <div class="logo">uOpen</div>
+      <div class="logo">uOpen Automation</div>
       <nav class="nav-menu">
-        <router-link to="/newclient" class="nav-item" active-class="active">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
-              <path d="M12 5v14M5 12h14"/>
-            </svg>
-          </span>
-          <span>New Client</span>
-        </router-link>
         <router-link to="/createclient" class="nav-item" active-class="active">
           <span class="nav-icon">
             <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
@@ -79,10 +71,11 @@ html, body {
 
 .logo {
   padding: 0 24px;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
   margin-bottom: 30px;
   color: #4dabf7;
+  white-space: nowrap;
 }
 
 .nav-menu {

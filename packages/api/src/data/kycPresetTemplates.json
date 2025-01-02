@@ -1,0 +1,66 @@
+{
+  "presets": [
+    {
+      "id": "basic",
+      "name": "Basic KYC",
+      "data": {
+        "loginInformation": {
+          "username": "basickyc",
+          "password": "Password123",
+          "email": "basickyc@example.com"
+        },
+        "household": {
+          "name": "Basic KYC Household",
+          "address": {
+            "street": "123 KYC St",
+            "city": "KYC City",
+            "state": "KC",
+            "zipCode": "12345"
+          },
+          "phone": "123-456-7890"
+        },
+        "participants": [
+          {
+            "id": "P001",
+            "firstName": "John",
+            "lastName": "KYC",
+            "dateOfBirth": "1990-01-01",
+            "ssn": "123-45-6789",
+            "role": "PRIMARY"
+          }
+        ]
+      }
+    },
+    {
+      "id": "premium",
+      "name": "Premium KYC",
+      "data": {
+        "loginInformation": {
+          "username": "premiumkyc",
+          "password": "Premium123",
+          "email": "premiumkyc@example.com"
+        },
+        "household": {
+          "name": "Premium KYC Household",
+          "address": {
+            "street": "456 KYC Ave",
+            "city": "KYC City",
+            "state": "KC",
+            "zipCode": "67890"
+          },
+          "phone": "987-654-3210"
+        },
+        "participants": [
+          {
+            "id": "P002",
+            "firstName": "Jane",
+            "lastName": "KYC",
+            "dateOfBirth": "1985-06-15",
+            "ssn": "987-65-4321",
+            "role": "PRIMARY"
+          }
+        ]
+      }
+    }
+  ]
+} 

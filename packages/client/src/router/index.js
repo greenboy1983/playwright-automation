@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import NewClient from '../views/NewClient.vue'
 import CreateClient from '../views/CreateClient.vue'
 import Kyc from '../views/Kyc.vue'
 import Reports from '../views/Reports.vue'
@@ -9,12 +8,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/newclient'
-    },
-    {
-      path: '/newclient',
-      name: 'newclient',
-      component: NewClient
+      redirect: '/createclient'
     },
     {
       path: '/createclient',
