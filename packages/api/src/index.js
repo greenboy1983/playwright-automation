@@ -5,8 +5,7 @@ const createNewClient = require('./scripts/createClient');
 const createKyc = require('./scripts/createKyc');
 const generateHtmlReport = require('./scripts/generateHtmlReport');
 const { getAllReports } = require('./utils/reportUtils');
-const newClientPresetTemplates = require('./data/newClientPresetTemplates.json');
-const kycPresetTemplates = require('./data/kycPresetTemplates.json');
+const fs = require('fs').promises;
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -161,12 +160,50 @@ app.get('/api/reports/html', (req, res) => {
   res.send(html);
 });
 
-// 添加新的路由处理预设模板
-app.get('/uopen-automation/newclient-presets', (req, res) => {
+// 验证模板文件的格式
+function isValidTemplate(template) {
+  return (
+    template &&
+    typeof template === 'object' &&
+    'id' in template &&
+    'name' in template &&
+    'data' in template &&
+    typeof template.id === 'string' &&
+    typeof template.name === 'string' &&
+    typeof template.data === 'object'
+  );
+}
+
+// 加载指定目录下的所有模板
+async function loadTemplates(templatesDir) {
+  const templates = [];
+  const files = await fs.readdir(templatesDir);
+  
+  for (const file of files) {
+    if (file.endsWith('.json')) {
+      try {
+        const template = require(path.join(templatesDir, file));
+        if (isValidTemplate(template)) {
+          templates.push(template);
+        } else {
+          console.warn(`Skipping invalid template file: ${file}`);
+        }
+      } catch (error) {
+        console.error(`Error loading template file ${file}:`, error);
+      }
+    }
+  }
+  
+  return { presets: templates };
+}
+
+// 修改路由处理
+app.get('/uopen-automation/newclient-presets', async (req, res) => {
   try {
+    const templates = await loadTemplates(path.join(__dirname, 'data/newclient/templates'));
     res.json({
       status: 'success',
-      data: newClientPresetTemplates
+      data: templates
     });
   } catch (error) {
     res.status(500).json({
@@ -176,12 +213,12 @@ app.get('/uopen-automation/newclient-presets', (req, res) => {
   }
 });
 
-// 添加KYC预设模板的路由
-app.get('/uopen-automation/kyc-presets', (req, res) => {
+app.get('/uopen-automation/kyc-presets', async (req, res) => {
   try {
+    const templates = await loadTemplates(path.join(__dirname, 'data/kyc/templates'));
     res.json({
       status: 'success',
-      data: kycPresetTemplates
+      data: templates
     });
   } catch (error) {
     res.status(500).json({
