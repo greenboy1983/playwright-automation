@@ -5,61 +5,34 @@
     <div class="content-layout">
       <!-- Left Column: Form -->
       <div class="form-container" :style="{ flex: requestFlex }">
-        <div class="form-header">Request</div>
-        
-        <div class="form-group">
-          <div class="form-row">
-            <div class="form-col">
-              <label>Environment</label>
-              <select v-model="environment" class="form-control">
+        <div class="json-section">
+          <div class="json-header">
+            <div class="header-left">
+              <span>Request</span>
+            </div>
+            <div class="header-right">
+              <select v-model="environment" class="header-select">
                 <option value="DEV">DEV</option>
                 <option value="SIT">SIT</option>
                 <option value="UAT">UAT</option>
               </select>
-            </div>
-            <div class="form-col">
-              <label>Preset Templates</label>
-              <select v-model="selectedPreset" class="form-control" @change="loadPreset">
-                <option value="">Select a template...</option>
+              <select v-model="selectedPreset" class="header-select" @change="loadPreset">
+                <option value="">Select template...</option>
                 <option v-for="preset in presets" :key="preset.id" :value="preset.id">
                   {{ preset.name }}
                 </option>
               </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="json-sections">
-          <!-- Tab Headers -->
-          <div class="tab-headers">
-            <div 
-              v-for="tab in tabs" 
-              :key="tab.id"
-              class="tab-header"
-              :class="{ active: activeTab === tab.id }"
-              @click="activeTab = tab.id"
-            >
-              {{ tab.label }}
-            </div>
-          </div>
-
-          <!-- Tab Contents -->
-          <div class="tab-contents">
-            <div 
-              v-for="tab in tabs" 
-              :key="tab.id"
-              class="tab-content"
-              v-show="activeTab === tab.id"
-            >
-              <textarea
-                v-model="formData[tab.id]"
-                class="form-control code-editor"
-                :placeholder="tab.placeholder"
-              ></textarea>
-              <button class="action-btn format-btn" @click="formatSection(tab.id)" title="Format JSON">
+              <button class="action-btn format-btn" @click="formatJson" title="Format JSON">
                 { }
               </button>
             </div>
+          </div>
+          <div class="json-content">
+            <textarea
+              v-model="jsonData"
+              class="form-control code-editor"
+              placeholder="Enter JSON data"
+            ></textarea>
           </div>
         </div>
 
@@ -111,13 +84,13 @@ export default {
   data() {
     return {
       environment: 'DEV',
-      formData: {
-        loginInformation: JSON.stringify({
+      jsonData: JSON.stringify({
+        loginInformation: {
           username: "testuser",
           password: "Password123",
           email: "test@example.com"
-        }, null, 2),
-        household: JSON.stringify({
+        },
+        household: {
           name: "Test Household",
           address: {
             street: "123 Test St",
@@ -126,8 +99,8 @@ export default {
             zipCode: "12345"
           },
           phone: "123-456-7890"
-        }, null, 2),
-        participants: JSON.stringify([
+        },
+        participants: [
           {
             id: "P001",
             firstName: "John",
@@ -136,23 +109,23 @@ export default {
             ssn: "123-45-6789",
             role: "PRIMARY"
           }
-        ], null, 2),
-        accounts: JSON.stringify([
+        ],
+        accounts: [
           {
             accountNumber: "ACC001",
             type: "SAVINGS",
             balance: 10000.00,
             status: "ACTIVE"
           }
-        ], null, 2),
-        clientGroups: JSON.stringify([
+        ],
+        clientGroups: [
           {
             groupId: "G001",
             name: "VIP Clients",
             type: "PREMIUM"
           }
-        ], null, 2)
-      },
+        ]
+      }, null, 2),
       activeTab: 'loginInformation',
       tabs: [
         { id: 'loginInformation', label: 'Login Info', placeholder: 'Enter login information' },
@@ -179,20 +152,13 @@ export default {
     await this.fetchPresets();
   },
   methods: {
-    formatSection(section) {
+    formatJson() {
       try {
-        const parsed = JSON.parse(this.formData[section]);
-        this.formData[section] = JSON.stringify(parsed, null, 2);
+        const parsed = JSON.parse(this.jsonData);
+        this.jsonData = JSON.stringify(parsed, null, 2);
         this.jsonError = null;
       } catch (error) {
-        this.jsonError = `Invalid JSON format in ${section}`;
-      }
-    },
-    validateJSON(jsonStr) {
-      try {
-        return JSON.parse(jsonStr);
-      } catch (error) {
-        return null;
+        this.jsonError = 'Invalid JSON format';
       }
     },
     async submitForm() {
@@ -201,22 +167,8 @@ export default {
         this.result = null;
         this.isSubmitting = true;
 
-        // Validate and combine all sections
-        const clientData = {
-          loginInformation: this.validateJSON(this.formData.loginInformation),
-          household: this.validateJSON(this.formData.household),
-          participants: this.validateJSON(this.formData.participants),
-          accounts: this.validateJSON(this.formData.accounts),
-          clientGroups: this.validateJSON(this.formData.clientGroups)
-        };
-
-        // Check if any section failed to parse
-        for (const [section, data] of Object.entries(clientData)) {
-          if (data === null) {
-            this.jsonError = `Invalid JSON format in ${section}`;
-            return;
-          }
-        }
+        // Validate JSON
+        const clientData = JSON.parse(this.jsonData);
 
         const response = await fetch('/uopen-automation/newclient', {
           method: 'POST',
@@ -286,10 +238,7 @@ export default {
       
       const preset = this.presets.find(p => p.id === this.selectedPreset);
       if (preset) {
-        // 更新所有表单数据
-        for (const key in preset.data) {
-          this.formData[key] = JSON.stringify(preset.data[key], null, 2);
-        }
+        this.jsonData = JSON.stringify(preset.data, null, 2);
         this.jsonError = null;
       }
     },
@@ -437,16 +386,19 @@ label {
 }
 
 .code-editor {
+  flex: 1;
+  min-height: 0;
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   resize: none;
-  height: 300px;
   padding: 12px;
   border: 1px solid #e9ecef;
   border-radius: 4px;
   background: white;
   width: 100%;
+  height: 100%;
   font-size: 13px;
   line-height: 1.5;
+  box-sizing: border-box;
 }
 
 .editor-actions {
@@ -550,7 +502,7 @@ label {
   white-space: pre-wrap;
 }
 
-.json-sections {
+.json-section {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -559,80 +511,48 @@ label {
   min-height: 0;
 }
 
-.tab-headers {
-  display: flex;
-  border-bottom: 1px solid #e9ecef;
+.json-header {
+  padding: 12px 20px;
   background: #f8f9fa;
-  padding: 0;
-  flex-shrink: 0;
-}
-
-.tab-header {
-  padding: 12px 16px;
-  color: #495057;
-  cursor: pointer;
-  user-select: none;
-  border-bottom: 2px solid transparent;
-  font-size: 14px;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.tab-header:hover {
-  color: #228be6;
-}
-
-.tab-header.active {
-  color: #228be6;
-  border-bottom-color: #228be6;
+  border-bottom: 1px solid #e9ecef;
   font-weight: 500;
+  color: #495057;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.tab-contents {
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-select {
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #495057;
+  background: white;
+  cursor: pointer;
+  min-width: 100px;
+}
+
+.header-select:focus {
+  outline: none;
+  border-color: #4dabf7;
+  box-shadow: 0 0 0 2px rgba(77,171,247,0.2);
+}
+
+.json-content {
   flex: 1;
   position: relative;
-  min-height: 0;
   padding: 20px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.tab-content {
-  height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  position: relative;
-  padding: 0;
-  width: 100%;
-}
-
-.code-editor {
-  flex: 1;
-  min-height: 0;
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-  resize: none;
-  padding: 12px;
-  border: 1px solid #e9ecef;
-  border-radius: 4px;
-  background: white;
-  width: 100%;
-  font-size: 13px;
-  line-height: 1.5;
-  box-sizing: border-box;
-}
-
-.format-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 1;
-}
-
-.section-hint {
-  margin-left: auto;
-  font-size: 12px;
-  color: #868e96;
-  font-weight: normal;
 }
 
 .resizer {
