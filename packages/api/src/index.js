@@ -200,7 +200,7 @@ async function loadTemplates(templatesDir) {
 // 修改路由处理
 app.get('/uopen-automation/newclient-presets', async (req, res) => {
   try {
-    const templates = await loadTemplates(path.join(__dirname, 'data/newclient/templates'));
+    const templates = await loadTemplates(path.join(__dirname, 'templates/newclient'));
     res.json({
       status: 'success',
       data: templates
@@ -215,7 +215,7 @@ app.get('/uopen-automation/newclient-presets', async (req, res) => {
 
 app.get('/uopen-automation/kyc-presets', async (req, res) => {
   try {
-    const templates = await loadTemplates(path.join(__dirname, 'data/kyc/templates'));
+    const templates = await loadTemplates(path.join(__dirname, 'templates/kyc'));
     res.json({
       status: 'success',
       data: templates
