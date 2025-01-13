@@ -1,0 +1,46 @@
+{
+  "id": "basic",
+  "name": "Basic Client",
+  "data": {
+    "loginInformation": {
+      "username": "basicclient",
+      "password": "Password123",
+      "email": "basicclient@example.com"
+    },
+    "household": {
+      "name": "Basic Client Household",
+      "address": {
+        "street": "123 Client St",
+        "city": "Client City",
+        "state": "CL",
+        "zipCode": "12345"
+      },
+      "phone": "123-456-7890"
+    },
+    "participants": [
+      {
+        "id": "P001",
+        "firstName": "John",
+        "lastName": "Client",
+        "dateOfBirth": "1990-01-01",
+        "ssn": "123-45-6789",
+        "role": "PRIMARY"
+      }
+    ],
+    "accounts": [
+      {
+        "accountNumber": "ACC001",
+        "type": "SAVINGS",
+        "balance": 10000.00,
+        "status": "ACTIVE"
+      }
+    ],
+    "clientGroups": [
+      {
+        "groupId": "G001",
+        "name": "Basic Clients",
+        "type": "STANDARD"
+      }
+    ]
+  }
+} 

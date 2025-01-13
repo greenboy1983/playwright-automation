@@ -6,8 +6,8 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev -w api\" \"npm run dev -w client\"",
-    "build": "concurrently \"npm run build -w api\" \"npm run build -w client\""
+    "dev": "concurrently \"npm run dev -w api\" \"npm run dev -w api-ts\" \"npm run dev -w client\"",
+    "build": "concurrently \"npm run build -w api\" \"npm run build -w api-ts\" \"npm run build -w client\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
