@@ -6,6 +6,7 @@ const createKyc = require('./scripts/createKyc');
 const generateHtmlReport = require('./scripts/generateHtmlReport');
 const { getAllReports } = require('./utils/reportUtils');
 const fs = require('fs').promises;
+const generateClientJson = require('./scripts/createClientWizard');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -222,6 +223,35 @@ app.get('/uopen-automation/kyc-presets', async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
+      status: 'error',
+      message: error.message
+    });
+  }
+});
+
+// 添加新的 Wizard API
+app.post('/uopen-automation/newclient-wizard', (req, res) => {
+  try {
+    const wizardData = req.body;
+    
+    // 验证必需的字段
+    if (!wizardData.participants || !wizardData.participants.length) {
+      throw new Error('At least one participant is required');
+    }
+    
+    if (!wizardData.accounts || !wizardData.accounts.length) {
+      throw new Error('At least one account is required');
+    }
+    
+    // 生成 JSON
+    const generatedJson = generateClientJson(wizardData);
+    
+    res.json({
+      status: 'success',
+      data: generatedJson
+    });
+  } catch (error) {
+    res.status(400).json({
       status: 'error',
       message: error.message
     });

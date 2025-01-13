@@ -11,6 +11,9 @@
               <span>Request</span>
             </div>
             <div class="header-right">
+              <button class="header-btn wizard-btn" @click="showWizard = true">
+                Generator
+              </button>
               <select v-model="environment" class="header-select">
                 <option value="DEV">DEV</option>
                 <option value="SIT">SIT</option>
@@ -72,6 +75,98 @@
         </div>
         <div v-else class="no-result">
           No response yet
+        </div>
+      </div>
+    </div>
+
+    <!-- Wizard Modal -->
+    <div v-if="showWizard" class="modal-overlay" @click.self="showWizard = false">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Create Client JSON Request Generator</h2>
+          <button class="close-btn" @click="showWizard = false">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+          <!-- RR Code Section -->
+          <div class="section">
+            <h3>Household</h3>
+            <div class="form-row">
+              <label class="form-label">RR Code</label>
+              <input v-model="rrCode" placeholder="Enter RR Code" class="form-control">
+            </div>
+          </div>
+
+          <!-- Participants Section -->
+          <div class="section">
+            <h3>Participants</h3>
+            <div v-for="(participant, index) in participants" :key="index" class="participant-form">
+              <div class="form-row">
+                <div class="index-label">{{ index + 1 }}</div>
+                <select v-model="participant.title" class="form-control">
+                  <option value="">Select Title</option>
+                  <option value="Mr">Mr</option>
+                  <option value="Mrs">Mrs</option>
+                  <option value="Ms">Ms</option>
+                  <option value="Miss">Miss</option>
+                  <option value="Dr">Dr</option>
+                </select>
+                <input v-model="participant.firstName" placeholder="First Name" class="form-control">
+                <input v-model="participant.lastName" placeholder="Last Name" class="form-control">
+                <select v-model="participant.gender" class="form-control">
+                  <option value="">Select Gender</option>
+                  <option value="M">Male</option>
+                  <option value="F">Female</option>
+                </select>
+                <select v-model="participant.address" class="form-control">
+                  <option value="CIVIC">Civic Address</option>
+                  <option value="RURAL">Rural Address</option>
+                </select>
+                <button @click="removeParticipant(index)" class="remove-btn" v-if="participants.length > 1">
+                  Remove
+                </button>
+              </div>
+            </div>
+            <button @click="addParticipant" class="add-btn">Add Participant</button>
+          </div>
+
+          <!-- Accounts Section -->
+          <div class="section">
+            <h3>Accounts</h3>
+            <div v-for="(account, index) in accounts" :key="index" class="account-form">
+              <div class="form-row">
+                <div class="index-label">{{ index + 1 }}</div>
+                <select v-model="account.type" class="form-control">
+                  <option value="">Select Account Type</option>
+                  <option value="CASH">Cash</option>
+                  <option value="MARGIN">Margin</option>
+                </select>
+                <select v-model="account.primaryAccountHolder" class="form-control">
+                  <option value="">Select Primary Holder</option>
+                  <option v-for="p in participants" :key="p.id" :value="p.id">
+                    {{ p.firstName }} {{ p.lastName }}
+                  </option>
+                </select>
+                <select v-model="account.secondaryAccountHolder" class="form-control">
+                  <option value="">Select Secondary Holder (Optional)</option>
+                  <option v-for="p in participants" :key="p.id" :value="p.id">
+                    {{ p.firstName }} {{ p.lastName }}
+                  </option>
+                </select>
+                <button @click="removeAccount(index)" class="remove-btn" v-if="accounts.length > 1">
+                  Remove
+                </button>
+              </div>
+            </div>
+            <button @click="addAccount" class="add-btn">Add Account</button>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button @click="generateJson" class="submit-btn" :disabled="!isWizardValid">
+            Generate JSON
+          </button>
+          <button @click="showWizard = false" class="cancel-btn">Cancel</button>
         </div>
       </div>
     </div>
@@ -145,11 +240,42 @@ export default {
       initialResponseFlex: 0,
       selectedPreset: '',
       presets: [],
+      showWizard: false,
+      participants: [
+        {
+          id: 'P001',
+          title: '',
+          firstName: '',
+          lastName: '',
+          gender: '',
+          address: 'CIVIC'
+        }
+      ],
+      accounts: [
+        {
+          type: '',
+          primaryAccountHolder: '',
+          secondaryAccountHolder: ''
+        }
+      ],
+      rrCode: ''
     }
   },
   async created() {
     // 组件创建时获取预设数据
     await this.fetchPresets();
+  },
+  computed: {
+    isWizardValid() {
+      const rrCodeValid = !!this.rrCode;
+      const participantsValid = this.participants.every(p => 
+        p.title && p.firstName && p.lastName && p.gender
+      );
+      const accountsValid = this.accounts.every(a => 
+        a.type && a.primaryAccountHolder
+      );
+      return rrCodeValid && participantsValid && accountsValid;
+    }
   },
   methods: {
     formatJson() {
@@ -251,6 +377,64 @@ export default {
         }
       } catch (error) {
         console.error('Failed to fetch presets:', error);
+      }
+    },
+    addParticipant() {
+      this.participants.push({
+        id: `P${String(this.participants.length + 1).padStart(3, '0')}`,
+        title: '',
+        firstName: '',
+        lastName: '',
+        gender: '',
+        address: 'CIVIC'
+      });
+    },
+    removeParticipant(index) {
+      this.participants.splice(index, 1);
+      // Update remaining participant IDs
+      this.participants.forEach((p, i) => {
+        p.id = `P${String(i + 1).padStart(3, '0')}`;
+      });
+    },
+    addAccount() {
+      this.accounts.push({
+        type: '',
+        primaryAccountHolder: '',
+        secondaryAccountHolder: ''
+      });
+    },
+    removeAccount(index) {
+      this.accounts.splice(index, 1);
+    },
+    async generateJson() {
+      try {
+        const response = await fetch('/uopen-automation/newclient-wizard', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            participants: this.participants,
+            accounts: this.accounts
+          })
+        });
+
+        const result = await response.json();
+        console.log('API Response:', result);
+
+        if (result.status === 'success') {
+          const formattedJson = JSON.stringify(result.data, null, 2);
+          console.log('Formatted JSON:', formattedJson);
+          
+          this.jsonData = formattedJson;
+          console.log('Updated jsonData:', this.jsonData);
+          
+          this.showWizard = false;
+        } else {
+          throw new Error(result.message);
+        }
+      } catch (error) {
+        console.error('Failed to generate JSON:', error);
       }
     }
   }
@@ -593,11 +777,219 @@ label {
 
 .form-row {
   display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 12px;
+  align-items: center;
 }
 
-.form-col {
+.index-label {
+  background: #e9ecef;
+  color: #495057;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 30px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.form-control {
   flex: 1;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #495057;
+}
+
+select.form-control {
+  padding-right: 24px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='4' viewBox='0 0 8 4'%3E%3Cpath fill='%23495057' d='M0 0l4 4 4-4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 8px 4px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.remove-btn {
+  background: #fa5252;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  flex-shrink: 0;
+  height: 36px;
+  transition: background-color 0.2s;
+}
+
+.remove-btn:hover {
+  background: #e03131;
+}
+
+.add-btn {
+  background: #228be6;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background-color 0.2s;
+}
+
+.add-btn:hover {
+  background: #1c7ed6;
+}
+
+/* 调整标题样式 */
+.section h3 {
+  margin-bottom: 16px;
+  color: #495057;
+  font-size: 16px;
+  font-weight: 500;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+/* 调整表单组间距 */
+.participant-form, .account-form {
+  margin-bottom: 16px;
+}
+
+/* 最后一个表单组不需要底部间距 */
+.participant-form:last-child, .account-form:last-child {
+  margin-bottom: 0;
+}
+
+.wizard-btn {
+  background: #228be6;
+  color: white;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.wizard-btn:hover {
+  background: #1c7ed6;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 1000px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #495057;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #868e96;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  padding: 15px 20px;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+.section {
+  margin-bottom: 30px;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.add-btn, .remove-btn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.add-btn {
+  background: #228be6;
+  color: white;
+  border: none;
+}
+
+.remove-btn {
+  background: #fa5252;
+  color: white;
+  border: none;
+}
+
+h3 {
+  margin-bottom: 20px;
+  color: #495057;
+}
+
+h4 {
+  margin: 15px 0;
+  color: #495057;
+  font-size: 16px;
+}
+
+.form-label {
+  color: #495057;
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 80px;
+  padding-top: 8px;
 }
 </style> 
