@@ -104,7 +104,7 @@
               <div class="form-row">
                 <div class="index-label">{{ index + 1 }}</div>
                 <select v-model="participant.title" class="form-control">
-                  <option value="">Select Title</option>
+                  <option value="">Title *</option>
                   <option value="Mr">Mr</option>
                   <option value="Mrs">Mrs</option>
                   <option value="Ms">Ms</option>
@@ -114,7 +114,7 @@
                 <input v-model="participant.firstName" placeholder="First Name" class="form-control">
                 <input v-model="participant.lastName" placeholder="Last Name" class="form-control">
                 <select v-model="participant.gender" class="form-control">
-                  <option value="">Select Gender</option>
+                  <option value="">Gender *</option>
                   <option value="M">Male</option>
                   <option value="F">Female</option>
                 </select>
@@ -137,18 +137,24 @@
               <div class="form-row">
                 <div class="index-label">{{ index + 1 }}</div>
                 <select v-model="account.type" class="form-control">
-                  <option value="">Select Account Type</option>
+                  <option value="">Account Type *</option>
                   <option value="CASH">Cash</option>
                   <option value="MARGIN">Margin</option>
                 </select>
                 <select v-model="account.primaryAccountHolder" class="form-control">
-                  <option value="">Select Primary Holder</option>
+                  <option value="">Primary Holder *</option>
                   <option v-for="p in participants" :key="p.id" :value="p.id">
                     {{ p.firstName }} {{ p.lastName }}
                   </option>
                 </select>
                 <select v-model="account.secondaryAccountHolder" class="form-control">
-                  <option value="">Select Secondary Holder (Optional)</option>
+                  <option value="">Secondary Holder (Optional)</option>
+                  <option v-for="p in participants" :key="p.id" :value="p.id">
+                    {{ p.firstName }} {{ p.lastName }}
+                  </option>
+                </select>
+                <select v-model="account.beneficiary" class="form-control">
+                  <option value="">Beneficiary (Optional)</option>
                   <option v-for="p in participants" :key="p.id" :value="p.id">
                     {{ p.firstName }} {{ p.lastName }}
                   </option>
@@ -255,7 +261,8 @@ export default {
         {
           type: '',
           primaryAccountHolder: '',
-          secondaryAccountHolder: ''
+          secondaryAccountHolder: '',
+          beneficiary: ''
         }
       ],
       rrCode: ''
@@ -400,7 +407,8 @@ export default {
       this.accounts.push({
         type: '',
         primaryAccountHolder: '',
-        secondaryAccountHolder: ''
+        secondaryAccountHolder: '',
+        beneficiary: ''
       });
     },
     removeAccount(index) {
@@ -415,7 +423,8 @@ export default {
           },
           body: JSON.stringify({
             participants: this.participants,
-            accounts: this.accounts
+            accounts: this.accounts,
+            rrCode: this.rrCode
           })
         });
 
