@@ -123,11 +123,11 @@
                   :class="{ 'error-field': !participant.title }"
                 >
                   <option value="">Title</option>
-                  <option value="Mr">Mr</option>
-                  <option value="Mrs">Mrs</option>
-                  <option value="Ms">Ms</option>
+                  <option value="Mr">Mr.</option>
+                  <option value="Mrs">Mrs.</option>
+                  <option value="Ms">Ms.</option>
                   <option value="Miss">Miss</option>
-                  <option value="Dr">Dr</option>
+                  <option value="Dr">Dr.</option>
                 </select>
                 <input v-model="participant.firstName" placeholder="First Name" class="form-control">
                 <input v-model="participant.lastName" placeholder="Last Name" class="form-control">
