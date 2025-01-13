@@ -93,18 +93,36 @@
             <h3>Household</h3>
             <div class="form-row">
               <label class="form-label">RR Code</label>
-              <input v-model="rrCode" placeholder="Enter RR Code" class="form-control">
+              <input 
+                v-model="rrCode" 
+                placeholder="Enter RR Code" 
+                class="form-control"
+                :class="{ 'error-field': !rrCode }"
+              >
             </div>
           </div>
 
           <!-- Participants Section -->
           <div class="section">
             <h3>Participants</h3>
+            <div class="list-header">
+              <div class="index-column">#</div>
+              <div class="form-column">Title</div>
+              <div class="form-column">First Name</div>
+              <div class="form-column">Last Name</div>
+              <div class="form-column">Gender</div>
+              <div class="form-column">Address</div>
+              <div class="action-column"></div>
+            </div>
             <div v-for="(participant, index) in participants" :key="index" class="participant-form">
               <div class="form-row">
                 <div class="index-label">{{ index + 1 }}</div>
-                <select v-model="participant.title" class="form-control">
-                  <option value="">Title *</option>
+                <select 
+                  v-model="participant.title" 
+                  class="form-control"
+                  :class="{ 'error-field': !participant.title }"
+                >
+                  <option value="">Title</option>
                   <option value="Mr">Mr</option>
                   <option value="Mrs">Mrs</option>
                   <option value="Ms">Ms</option>
@@ -113,17 +131,24 @@
                 </select>
                 <input v-model="participant.firstName" placeholder="First Name" class="form-control">
                 <input v-model="participant.lastName" placeholder="Last Name" class="form-control">
-                <select v-model="participant.gender" class="form-control">
-                  <option value="">Gender *</option>
-                  <option value="M">Male</option>
-                  <option value="F">Female</option>
+                <select 
+                  v-model="participant.gender" 
+                  class="form-control"
+                  :class="{ 'error-field': !participant.gender }"
+                >
+                  <option value="">Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
                 </select>
                 <select v-model="participant.address" class="form-control">
                   <option value="CIVIC">Civic Address</option>
                   <option value="RURAL">Rural Address</option>
                 </select>
-                <button @click="removeParticipant(index)" class="remove-btn" v-if="participants.length > 1">
-                  Remove
+                <button v-if="participants.length > 1" 
+                        @click="removeParticipant(index)" 
+                        class="icon-btn remove-btn" 
+                        title="Remove Participant">
+                  ×
                 </button>
               </div>
             </div>
@@ -133,16 +158,32 @@
           <!-- Accounts Section -->
           <div class="section">
             <h3>Accounts</h3>
+            <div class="list-header">
+              <div class="index-column">#</div>
+              <div class="form-column">Type</div>
+              <div class="form-column">Primary Holder</div>
+              <div class="form-column">Secondary Holder</div>
+              <div class="form-column">Beneficiary</div>
+              <div class="action-column"></div>
+            </div>
             <div v-for="(account, index) in accounts" :key="index" class="account-form">
               <div class="form-row">
                 <div class="index-label">{{ index + 1 }}</div>
-                <select v-model="account.type" class="form-control">
-                  <option value="">Account Type *</option>
+                <select 
+                  v-model="account.type" 
+                  class="form-control"
+                  :class="{ 'error-field': !account.type }"
+                >
+                  <option value="">Account Type</option>
                   <option value="CASH">Cash</option>
                   <option value="MARGIN">Margin</option>
                 </select>
-                <select v-model="account.primaryAccountHolder" class="form-control">
-                  <option value="">Primary Holder *</option>
+                <select 
+                  v-model="account.primaryAccountHolder" 
+                  class="form-control"
+                  :class="{ 'error-field': !account.primaryAccountHolder }"
+                >
+                  <option value="">Primary Holder</option>
                   <option v-for="p in participants" :key="p.id" :value="p.id">
                     {{ p.firstName }} {{ p.lastName }}
                   </option>
@@ -159,8 +200,11 @@
                     {{ p.firstName }} {{ p.lastName }}
                   </option>
                 </select>
-                <button @click="removeAccount(index)" class="remove-btn" v-if="accounts.length > 1">
-                  Remove
+                <button v-if="accounts.length > 1" 
+                        @click="removeAccount(index)" 
+                        class="icon-btn remove-btn" 
+                        title="Remove Account">
+                  ×
                 </button>
               </div>
             </div>
@@ -204,8 +248,8 @@ export default {
         participants: [
           {
             id: "P001",
-            firstName: "John",
-            lastName: "Doe",
+            firstName: '',
+            lastName: '',
             dateOfBirth: "1990-01-01",
             ssn: "123-45-6789",
             role: "PRIMARY"
@@ -265,12 +309,51 @@ export default {
           beneficiary: ''
         }
       ],
-      rrCode: ''
+      rrCode: '',
+      firstNames: [
+        'James',
+        'John',
+        'Robert',
+        'Michael',
+        'William',
+        'David',
+        'Richard',
+        'Joseph',
+        'Thomas',
+        'Christopher',
+        'Emma',
+        'Olivia',
+        'Sophia',
+        'Isabella',
+        'Ava',
+        'Charlotte',
+        'Mia',
+        'Amelia',
+        'Elizabeth',
+        'Sarah'
+      ],
+      lastNames: [
+        'Smith',
+        'Johnson',
+        'Williams',
+        'Brown',
+        'Jones',
+        'Garcia',
+        'Miller',
+        'Davis',
+        'Rodriguez',
+        'Martinez'
+      ]
     }
   },
-  async created() {
-    // 组件创建时获取预设数据
-    await this.fetchPresets();
+  created() {
+    // 在组件创建时为第一个参与者生成随机姓名
+    const { firstName, lastName } = this.getRandomName();
+    this.participants[0].firstName = firstName;
+    this.participants[0].lastName = lastName;
+    
+    // 获取预设数据
+    this.fetchPresets();
   },
   computed: {
     isWizardValid() {
@@ -386,12 +469,18 @@ export default {
         console.error('Failed to fetch presets:', error);
       }
     },
+    getRandomName() {
+      const firstName = this.firstNames[Math.floor(Math.random() * this.firstNames.length)];
+      const lastName = this.lastNames[Math.floor(Math.random() * this.lastNames.length)];
+      return { firstName, lastName };
+    },
     addParticipant() {
+      const { firstName, lastName } = this.getRandomName();
       this.participants.push({
         id: `P${String(this.participants.length + 1).padStart(3, '0')}`,
         title: '',
-        firstName: '',
-        lastName: '',
+        firstName: firstName,
+        lastName: lastName,
         gender: '',
         address: 'CIVIC'
       });
@@ -1000,5 +1089,94 @@ h4 {
   font-weight: 500;
   min-width: 80px;
   padding-top: 8px;
+}
+
+.list-header {
+  display: flex;
+  gap: 12px;
+  padding: 0 0 8px 0;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #e9ecef;
+  color: #495057;
+  font-size: 13px;
+  font-weight: 500;
+  align-items: center;
+}
+
+.index-column {
+  width: 30px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.form-column {
+  flex: 1;
+  padding: 0 8px;
+  min-width: 120px;
+}
+
+.action-column {
+  width: 36px;
+  flex-shrink: 0;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.form-row .form-control {
+  flex: 1;
+  min-width: 120px;
+}
+
+.form-row .index-label {
+  width: 30px;
+  text-align: center;
+}
+
+/* 调整特定列的宽度 */
+.form-column:nth-child(2), /* Title */
+.form-column:nth-child(5), /* Gender */
+.form-column:nth-child(6) { /* Address */
+  flex: 0.8;
+}
+
+.form-column:nth-child(3), /* First Name */
+.form-column:nth-child(4) { /* Last Name */
+  flex: 1.2;
+}
+
+.icon-btn.remove-btn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fa5252;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.icon-btn.remove-btn:hover {
+  background: #e03131;
+}
+
+.error-field {
+  border-color: #fa5252;
+  background-color: #fff5f5;
+}
+
+.error-field:focus {
+  border-color: #fa5252;
+  box-shadow: 0 0 0 2px rgba(250, 82, 82, 0.2);
 }
 </style> 
