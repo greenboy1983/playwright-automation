@@ -15,9 +15,15 @@ export function isValidTemplate(template: any) {
     );
 }
 
+interface Template {
+    id: string;
+    name: string;
+    data: object;
+}
+
 // 加载指定目录下的所有模板
 export async function loadTemplates(templatesDir: string) {
-    const templates = [];
+    const templates: Template[] = [];
     const files = await fs.readdir(templatesDir);
 
     for (const file of files) {
@@ -25,7 +31,7 @@ export async function loadTemplates(templatesDir: string) {
             try {
                 const template = require(path.join(templatesDir, file));
                 if (isValidTemplate(template)) {
-                    templates.push(template);
+                    templates.push(template as Template);
                 } else {
                     console.warn(`Skipping invalid template file: ${file}`);
                 }
