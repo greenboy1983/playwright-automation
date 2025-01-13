@@ -17,13 +17,19 @@ export default defineConfig({
     proxy: {
       // 代理所有 /uopen-automation 开头的请求
       '/uopen-automation': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false
       },
       // 代理所有 /api 开头的请求
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false
+      },
+      // 代理所有 /reports 开头的请求
+      '/reports': {
+        target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false
       },
@@ -31,7 +37,7 @@ export default defineConfig({
       '/ws': {
         target: 'ws://localhost:3000',
         ws: true
-      }
+      } 
     }
   }
 }) 

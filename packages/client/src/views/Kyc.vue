@@ -207,7 +207,7 @@ export default {
     },
     async fetchPresets() {
       try {
-        const response = await fetch('/uopen-automation/kyc-presets');
+        const response = await fetch('/uopen-automation/load-templates?type=kyc');
         const result = await response.json();
         if (result.status === 'success') {
           this.presets = result.data.presets;

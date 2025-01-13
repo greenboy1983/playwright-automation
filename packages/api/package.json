@@ -2,8 +2,9 @@
   "name": "api",
   "version": "1.0.0",
   "scripts": {
-    "dev": "nodemon src/index.js --ignore reports/",
-    "build": "echo \"No build step for API\""
+    "dev": "nodemon --exec ts-node src/index.ts --ignore reports/",
+    "build": "tsc",
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -11,9 +12,11 @@
     "playwright": "^1.40.1"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
-  },
-  "nodemonConfig": {
-    "ignore": ["reports/*", "reports/**/*"]
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.0",
+    "nodemon": "^3.0.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   }
 } 

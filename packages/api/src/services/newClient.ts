@@ -1,5 +1,11 @@
 import { chromium, Browser, Page } from 'playwright';
 import path from 'path';
+import { saveReport } from './generateHtmlReport';
+
+export interface NewClientRequest {
+    environment: 'DEV' | 'SIT' | 'UAT';
+    clientInfo: any;
+}
 
 interface AutomationResult {
   clientId: string;
@@ -43,6 +49,22 @@ export async function createNewClient(environment: string, clientData: any): Pro
     await page.screenshot({ 
       path: path.join(reportDir, 'final.png'),
       fullPage: true 
+    });
+    
+    const result = {
+      success: true,
+      clientId: 'mock-client-id-' + Date.now(),
+      createdAt: new Date().toISOString()
+    };
+
+
+      // Save report
+    await saveReport(page, reportDir, {
+    type: 'newclient',
+    environment,
+    request: clientData,
+    response: result,
+    timestamp: new Date().toISOString()
     });
 
     return {

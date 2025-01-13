@@ -460,7 +460,7 @@ export default {
     },
     async fetchPresets() {
       try {
-        const response = await fetch('/uopen-automation/newclient-presets');
+        const response = await fetch('/uopen-automation/load-templates?type=newclient');
         const result = await response.json();
         if (result.status === 'success') {
           this.presets = result.data.presets;
