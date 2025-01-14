@@ -422,7 +422,7 @@ label {
   background: white;
   width: 100%;
   height: 100%;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   box-sizing: border-box;
 }
@@ -525,7 +525,7 @@ label {
   background: white;
   border-radius: 4px;
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   white-space: pre-wrap;
 }

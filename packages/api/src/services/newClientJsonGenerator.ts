@@ -1,4 +1,9 @@
 export interface WizardRequest {
+    loginInformation: {
+        username?: string;
+        password?: string;
+    };
+    autoApprove: boolean;
     participants: Array<{
         id: string;
         title: string;
@@ -73,10 +78,11 @@ export function generateClientJson(wizardData: WizardRequest) {
     // 生成基础的客户信息
     const clientJson = {
       loginInformation: {
-        username: `user${Date.now()}`,
-        password: "Password123",
-        email: `user${Date.now()}@example.com`
+        username: wizardData.loginInformation.username || '',
+        password: wizardData.loginInformation.password ? 
+            Buffer.from(wizardData.loginInformation.password).toString('base64') : ''
       },
+      autoApprove: wizardData.autoApprove,
       household: {
         householdName: `${participants[0].firstName} ${participants[0].lastName} Household`,
         rrCode: rrCode

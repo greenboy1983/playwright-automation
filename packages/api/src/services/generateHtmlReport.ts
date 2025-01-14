@@ -275,7 +275,7 @@ export function generateHtmlReport(reports: Report[], options: ReportOptions) {
             margin: 0;
             white-space: pre-wrap;
             font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-            font-size: 13px;
+            font-size: 14px;
             line-height: 1.5;
             color: #212529;
           }
@@ -543,6 +543,21 @@ export function generateHtmlReport(reports: Report[], options: ReportOptions) {
           .tag.env {
             background: #e8f5e9;
             color: #2e7d32;
+          }
+          .section-content {
+            overflow-x: auto;
+            max-width: 100%;
+          }
+          .section-content pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            word-break: break-all;
+            overflow-wrap: break-word;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 0;
+            padding: 10px;
           }
         </style>
       </head>

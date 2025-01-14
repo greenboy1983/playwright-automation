@@ -88,17 +88,46 @@
         </div>
         
         <div class="modal-body">
-          <!-- RR Code Section -->
+          <!-- Login and RR Code Section -->
           <div class="section">
-            <h3>Household</h3>
-            <div class="form-row">
-              <label class="form-label">RR Code</label>
-              <input 
-                v-model="rrCode" 
-                placeholder="Enter RR Code" 
-                class="form-control"
-                :class="{ 'error-field': !rrCode }"
-              >
+            <h3>Basic Information</h3>
+            <div class="form-grid">
+              <div class="form-col">
+                <label class="form-label">Username</label>
+                <input 
+                  v-model="loginInfo.username" 
+                  placeholder="Enter username" 
+                  class="form-control"
+                >
+              </div>
+              <div class="form-col">
+                <label class="form-label">Password</label>
+                <input 
+                  v-model="loginInfo.password" 
+                  type="password"
+                  placeholder="Enter password" 
+                  class="form-control"
+                >
+              </div>
+              <div class="form-col">
+                <label class="form-label">RR Code</label>
+                <input 
+                  v-model="rrCode" 
+                  placeholder="Enter RR Code" 
+                  class="form-control"
+                  :class="{ 'error-field': !rrCode }"
+                >
+              </div>
+            </div>
+            <div class="form-row mt-3">
+              <div class="form-col">
+                <label class="form-label checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    v-model="autoApprove"
+                  > Auto Approve
+                </label>
+              </div>
             </div>
           </div>
 
@@ -343,7 +372,12 @@ export default {
         'Davis',
         'Rodriguez',
         'Martinez'
-      ]
+      ],
+      loginInfo: {
+        username: '',
+        password: ''
+      },
+      autoApprove: false
     }
   },
   created() {
@@ -504,17 +538,20 @@ export default {
       this.accounts.splice(index, 1);
     },
     async generateJson() {
+      const wizardData = {
+        loginInformation: this.loginInfo,
+        autoApprove: this.autoApprove,
+        participants: this.participants,
+        accounts: this.accounts,
+        rrCode: this.rrCode
+      };
       try {
         const response = await fetch('/uopen-automation/newclient-wizard', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({
-            participants: this.participants,
-            accounts: this.accounts,
-            rrCode: this.rrCode
-          })
+          body: JSON.stringify(wizardData)
         });
 
         const result = await response.json();
@@ -678,7 +715,7 @@ label {
   background: white;
   width: 100%;
   height: 100%;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   box-sizing: border-box;
 }
@@ -1178,5 +1215,76 @@ h4 {
 .error-field:focus {
   border-color: #fa5252;
   box-shadow: 0 0 0 2px rgba(250, 82, 82, 0.2);
+}
+
+.form-col {
+  flex: 1;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.form-col {
+  min-width: 0; /* 防止内容溢出 */
+}
+
+.mt-3 {
+  margin-top: 12px;
+}
+
+.checkbox-label {
+  margin-top: 4px;
+}
+
+.form-control {
+  width: 100%;
+  max-width: 200px; /* 限制输入框最大宽度 */
+}
+
+/* 修改选择器的特异性，只针对模态框中的表单控件 */
+.modal-body .form-control {
+  width: 100%;
+  max-width: 200px; /* 限制输入框最大宽度 */
+}
+
+/* 恢复 JSON 编辑器的样式 */
+.json-content .form-control {
+  max-width: none;
+  width: 100%;
+  height: 100%;
+}
+
+/* 其他模态框特定的样式 */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.modal-body .form-col {
+  min-width: 0;
+}
+
+.mt-3 {
+  margin-top: 12px;
+}
+
+.checkbox-label {
+  margin-top: 4px;
 }
 </style> 

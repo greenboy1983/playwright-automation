@@ -35,6 +35,15 @@
           </span>
           <span>Reports</span>
         </router-link>
+        <router-link to="/regression" class="nav-item" active-class="active">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+              <path d="M20 6L9 17l-5-5"/>
+              <path d="M19 13v7h-7"/>
+            </svg>
+          </span>
+          <span>Regression Test</span>
+        </router-link>
       </nav>
     </div>
     <div class="main-content">
