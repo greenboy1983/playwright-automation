@@ -97,7 +97,7 @@ export function getAllReports(): Report[] {
                             .filter(file => file.endsWith('.png'))
                             .map(file => ({
                                 name: file,
-                                path: `/reports/${path.relative(reportsDir, path.join(reportPath, file))}`
+                                path: `/show-reports/${path.relative(reportsDir, path.join(reportPath, file))}`
                             }));
 
                         reports.push({
@@ -623,7 +623,7 @@ export function generateHtmlReport(reports: Report[], options: ReportOptions) {
                              onclick="openModal('${report.timestamp}', ${index})">
                           <div class="screenshot-title">${screenshot.name}</div>
                           <img class="screenshot" 
-                               src="/reports/${report.relativePath}/${screenshot.name}" 
+                               src="/show-reports/${report.relativePath}/${screenshot.name}" 
                                alt="${screenshot.name}">
                         </div>
                       `).join('')}

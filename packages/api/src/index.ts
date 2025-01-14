@@ -142,7 +142,7 @@ app.get('/uopen-automation/load-templates', async (req: Request, res: Response) 
 });
 
 // Serve static reports directory
-app.use('/reports', express.static(path.join(__dirname, '../reports')));
+app.use('/show-reports', express.static(path.join(__dirname, '../reports')));
 
 // 报告查询接口
 app.get('/api/reports/html', (req: Request, res: Response) => {

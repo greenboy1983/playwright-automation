@@ -28,7 +28,7 @@ export default defineConfig({
         secure: false
       },
       // 代理所有 /reports 开头的请求
-      '/reports': {
+      '/show-reports': {
         target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false
