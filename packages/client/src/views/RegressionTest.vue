@@ -6,10 +6,10 @@
       <div class="actions-bar">
         <button 
           class="execute-btn" 
-          :disabled="!selectedTests.length"
+          :disabled="!selectedTests.length || isLoading"
           @click="executeTests"
         >
-          Execute Selected Tests ({{ selectedTests.length }})
+          {{ isLoading ? 'Executing...' : `Execute Selected Tests (${selectedTests.length})` }}
         </button>
       </div>
 
@@ -43,6 +43,17 @@
           </div>
         </div>
       </div>
+
+      <!-- 执行结果显示 -->
+      <div v-if="executionResults" class="results-section">
+        <h3>Execution Results</h3>
+        <div v-for="result in executionResults.results" :key="result.id" 
+             class="result-item" :class="result.status">
+          <div class="result-status">{{ result.status }}</div>
+          <div class="result-id">{{ result.id }}</div>
+          <div v-if="result.error" class="result-error">{{ result.error }}</div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -52,30 +63,14 @@ export default {
   name: 'RegressionTest',
   data() {
     return {
-      testCases: [
-        {
-          id: 1,
-          name: 'Create Basic Client',
-          description: 'Create a client with basic information and one cash account'
-        },
-        {
-          id: 2,
-          name: 'Create Joint Account',
-          description: 'Create a client with two account holders and joint account'
-        },
-        {
-          id: 3,
-          name: 'Create Client with Beneficiary',
-          description: 'Create a client with beneficiary on the account'
-        },
-        {
-          id: 4,
-          name: 'KYC Verification',
-          description: 'Complete KYC process for an existing client'
-        }
-      ],
-      selectedTests: []
+      testCases: [],
+      selectedTests: [],
+      isLoading: false,
+      executionResults: null
     }
+  },
+  async created() {
+    await this.fetchTestCases();
   },
   computed: {
     isAllSelected() {
@@ -83,24 +78,50 @@ export default {
     }
   },
   methods: {
+    async fetchTestCases() {
+      try {
+        const response = await fetch('/test/list-testcases');
+        const data = await response.json();
+        this.testCases = data;
+      } catch (error) {
+        console.error('Error fetching test cases:', error);
+      }
+    },
+    async executeTests() {
+      this.isLoading = true;
+      this.executionResults = null;
+
+      try {
+        const response = await fetch('/test/run-testcases', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            testIds: this.selectedTests
+          })
+        });
+
+        const result = await response.json();
+        this.executionResults = result;
+      } catch (error) {
+        console.error('Error executing tests:', error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
     toggleAllTests() {
       if (this.isAllSelected) {
-        this.selectedTests = []
+        this.selectedTests = [];
       } else {
-        this.selectedTests = this.testCases.map(test => test.id)
+        this.selectedTests = this.testCases.map(test => test.id);
       }
     },
     editTest(test) {
-      console.log('Edit test:', test)
-      // 实现编辑功能
+      console.log('Edit test:', test);
     },
     deleteTest(test) {
-      console.log('Delete test:', test)
-      // 实现删除功能
-    },
-    executeTests() {
-      console.log('Executing tests:', this.selectedTests)
-      // 实现测试执行功能
+      console.log('Delete test:', test);
     }
   }
 }
@@ -214,5 +235,46 @@ input[type="checkbox"] {
   width: 16px;
   height: 16px;
   margin: 0;
+}
+
+/* 添加结果显示相关样式 */
+.results-section {
+  margin-top: 20px;
+  padding: 20px;
+  border-top: 1px solid #e9ecef;
+}
+
+.result-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  margin: 4px 0;
+  border-radius: 4px;
+}
+
+.result-item.success {
+  background: #d3f9d8;
+  color: #2b8a3e;
+}
+
+.result-item.error {
+  background: #ffe3e3;
+  color: #c92a2a;
+}
+
+.result-status {
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.result-error {
+  color: #e03131;
+  font-size: 14px;
+}
+
+.execute-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 </style> 
